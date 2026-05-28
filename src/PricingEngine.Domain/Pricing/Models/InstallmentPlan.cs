@@ -10,8 +10,6 @@ public class InstallmentPlan : ValueObject
     private readonly Money _totalAmount;
     private readonly Money _installmentSurchargeAmount;
 
-    // netPayable is QuoteResult.TotalAmount (the base amount before any installment surcharge).
-    // InstallmentSurchargeAmount = totalAmount - netPayable (zero for single-payment plan).
     public InstallmentPlan(
         int   installmentCount,
         Money amountPerInstallment,
