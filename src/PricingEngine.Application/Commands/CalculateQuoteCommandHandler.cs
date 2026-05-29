@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.Extensions.Logging;
 using PricingEngine.Application.Exceptions;
 using PricingEngine.Application.Interfaces;
 using PricingEngine.Application.Responses;
@@ -18,7 +19,8 @@ public class CalculateQuoteCommandHandler(
     PricingStrategyFactory strategyFactory,
     IInstallmentCalculator installmentCalculator,
     IIntegrationEventPublisher eventPublisher,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    ILogger<CalculateQuoteCommandHandler> logger)
     : IRequestHandler<CalculateQuoteCommand, QuoteSummaryResponse>
 {
     public async Task<QuoteSummaryResponse> Handle(
@@ -30,7 +32,7 @@ public class CalculateQuoteCommandHandler(
 
         var strategy = strategyFactory.Resolve(request.ProductCode);
 
-        var quoteResult     = strategy.Calculate(request.Payload, config.ConfigData);
+        var quoteResult      = strategy.Calculate(request.Payload, config.ConfigData);
         var installmentPlans = installmentCalculator.Calculate(quoteResult);
 
         var quoteRecord = quoteRecordFactory
@@ -41,17 +43,27 @@ public class CalculateQuoteCommandHandler(
 
         await quoteRepo.Save(quoteRecord, ct);
 
-        await eventPublisher.Publish(new QuoteGeneratedIntegrationEvent
+       try
         {
-            QuoteId     = quoteRecord.Id,
-            ProductCode = quoteRecord.ProductCode,
-            QuoteDate   = quoteRecord.QuoteDate,
-            NetPremium  = quoteRecord.NetPremium,
-            TaxAmount   = quoteRecord.TaxAmount,
-            FeeAmount   = quoteRecord.FeeAmount,
-            TotalAmount = quoteRecord.TotalAmount,
-            Currency    = quoteRecord.Currency,
-        }, ct);
+            await eventPublisher.Publish(new QuoteGeneratedIntegrationEvent
+            {
+                QuoteId     = quoteRecord.Id,
+                ProductCode = quoteRecord.ProductCode,
+                QuoteDate   = quoteRecord.QuoteDate,
+                NetPremium  = quoteRecord.NetPremium,
+                TaxAmount   = quoteRecord.TaxAmount,
+                FeeAmount   = quoteRecord.FeeAmount,
+                TotalAmount = quoteRecord.TotalAmount,
+                Currency    = quoteRecord.Currency,
+            }, ct);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex,
+                "Failed to queue integration event for QuoteId {QuoteId}. " +
+                "The quote will be saved but may not be audited automatically.",
+                quoteRecord.Id);
+        }
 
         await unitOfWork.CommitAsync(ct);
 

@@ -1,17 +1,34 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using PricingEngine.Domain.Quotes.Events;
 using PricingEngine.Infrastructure.Audit;
 using PricingEngine.Infrastructure.Persistence;
 
 namespace PricingEngine.Infrastructure.Messaging.Consumers;
 
-public class AuditQuoteConsumer(PricingDbContext context)
+public class AuditQuoteConsumer(
+    PricingDbContext context,
+    ILogger<AuditQuoteConsumer> logger)
     : IConsumer<QuoteGeneratedIntegrationEvent>
 {
     public async Task Consume(ConsumeContext<QuoteGeneratedIntegrationEvent> consumeContext)
     {
         var msg = consumeContext.Message;
+
+        var quote = await context.QuoteRecords
+            .FirstOrDefaultAsync(q => q.Id == msg.QuoteId);
+
+        if (quote is null)
+        {
+            logger.LogError(
+                "QuoteRecord {QuoteId} not found during audit processing. " +
+                "Message will be moved to the error queue.",
+                msg.QuoteId);
+
+            throw new InvalidOperationException(
+                $"QuoteRecord {msg.QuoteId} not found during audit processing.");
+        }
 
         context.AuditLogs.Add(new AuditLog
         {
@@ -25,9 +42,11 @@ public class AuditQuoteConsumer(PricingDbContext context)
             EventId     = msg.EventId,
         });
 
-        var quote = await context.QuoteRecords.FirstOrDefaultAsync(q => q.Id == msg.QuoteId);
-        quote?.MarkAsAudited();
+        quote.MarkAsAudited();
 
         await context.SaveChangesAsync();
+
+        logger.LogInformation(
+            "Quote {QuoteId} marked as Audited and AuditLog created.", msg.QuoteId);
     }
 }

@@ -11,7 +11,7 @@ COPY ["src/PricingEngine.Application/PricingEngine.Application.csproj",         
 COPY ["src/PricingEngine.Domain/PricingEngine.Domain.csproj",                               "src/PricingEngine.Domain/"]
 RUN dotnet restore "src/PricingEngine.Startup/PricingEngine.Startup.csproj"
 COPY . .
-WORKDIR "/src/src/PricingEngine.Api"
+WORKDIR "/src/src/PricingEngine.Startup"
 RUN dotnet publish -c Release -o /app/publish --no-restore
 
 FROM base AS final

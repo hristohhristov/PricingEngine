@@ -20,6 +20,7 @@ public sealed class ProductConfigurationSeeder(
             var code = definition.SupportedProductCode;
 
             var exists = await dbContext.ProductConfigurations
+                .IgnoreQueryFilters()
                 .AnyAsync(p => p.ProductCode == code, cancellationToken);
 
             if (exists)
