@@ -9,7 +9,7 @@ public class QuoteRecordFactory : IQuoteRecordFactory
     private string      _productCode  = default!;
     private DateTime    _quoteDate;
     private QuoteResult _quoteResult  = default!;
-    private string      _currency     = "BGN";
+    private string      _currency     = "EUR";
 
     private bool _productCodeSet = false;
     private bool _quoteDateSet   = false;
