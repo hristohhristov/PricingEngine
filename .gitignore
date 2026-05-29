@@ -423,6 +423,7 @@ FodyWeavers.xsd
 
 # ASP.NET Core appsettings (keep out of source control — use env vars or secrets)
 appsettings*.json
+!appsettings.Development.json
 
 # Windows Installer files from build outputs
 *.cab
