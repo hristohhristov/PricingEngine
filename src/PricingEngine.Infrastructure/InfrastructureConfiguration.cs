@@ -9,6 +9,7 @@ using PricingEngine.Infrastructure.Messaging;
 using PricingEngine.Infrastructure.Messaging.Consumers;
 using PricingEngine.Infrastructure.Messaging.Options;
 using PricingEngine.Infrastructure.Persistence;
+using PricingEngine.Infrastructure.Seeding;
 
 namespace PricingEngine.Infrastructure;
 
@@ -23,7 +24,8 @@ public static class InfrastructureConfiguration
             .AddServiceBus(configuration)
             .AddScoped<IUnitOfWork, UnitOfWork>()
             .AddScoped<IIntegrationEventPublisher, IntegrationEventPublisher>()
-            .AddScoped<DatabaseInitializer>();
+            .AddScoped<DatabaseInitializer>()
+            .AddScoped<IProductConfigurationSeeder, ProductConfigurationSeeder>();
 
         return services;
     }
