@@ -1,0 +1,18 @@
+# Build output — must be excluded so dotnet restore inside Docker
+# generates fresh Linux-native project.assets.json files.
+# Without this, Windows-generated obj/ files cause MSB4018 errors.
+**/bin/
+**/obj/
+
+# Test projects — not needed in the production image
+tests/
+
+# Local Docker config — not part of the app
+local/
+
+# IDE and OS artifacts
+.vs/
+.git/
+.github/
+**/.DS_Store
+**/Thumbs.db

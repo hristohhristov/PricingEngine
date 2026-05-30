@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  influxdb:
+    image: influxdb:1.8
+    container_name: k6_influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      - INFLUXDB_DB=k6
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: k6_grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_BASIC_ENABLED=false
+    depends_on:
+      - influxdb
+
+  k6:
+    image: grafana/k6:latest
+    container_name: k6_runner
+    ports:
+      - "5665:5665"
+    volumes:
+      - ./scripts:/apps
+    environment:
+      - K6_OUT=influxdb=http://k6_influxdb:8086/k6
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    tty: true
