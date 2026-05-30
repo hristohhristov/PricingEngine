@@ -4,8 +4,16 @@ using PricingEngine.Domain.Quotes.Models;
 
 namespace PricingEngine.Infrastructure.Persistence.Configurations;
 
+/// <summary>
+/// EF Core fluent configuration for the <see cref="QuoteRecord"/> aggregate root.
+/// Maps to the <c>QuoteRecords</c> table and configures column precision, status conversion, and indexes.
+/// </summary>
 public class QuoteRecordConfiguration : IEntityTypeConfiguration<QuoteRecord>
 {
+    /// <summary>
+    /// Applies the entity type mapping configuration for <see cref="QuoteRecord"/>.
+    /// </summary>
+    /// <param name="builder">The builder used to configure the entity type.</param>
     public void Configure(EntityTypeBuilder<QuoteRecord> builder)
     {
         builder.ToTable("QuoteRecords");
@@ -21,7 +29,7 @@ public class QuoteRecordConfiguration : IEntityTypeConfiguration<QuoteRecord>
         builder.Property(x => x.IsDeleted).IsRequired().HasDefaultValue(false);
 
         builder.Ignore(x => x.DomainEvents);
-        builder.Ignore(x => x.TotalAmount); // computed C# property, not a DB column
+        builder.Ignore(x => x.TotalAmount);
 
         builder.HasIndex(x => x.ProductCode);
     }

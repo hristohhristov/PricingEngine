@@ -10,12 +10,26 @@ using PricingEngine.Infrastructure.Audit;
 
 namespace PricingEngine.Infrastructure.Persistence;
 
+/// <summary>
+/// EF Core database context for the PricingEngine bounded context.
+/// Applies fluent configurations, MassTransit outbox/inbox tables, and a global soft-delete query filter.
+/// </summary>
 public class PricingDbContext(DbContextOptions<PricingDbContext> options) : DbContext(options)
 {
+    /// <summary>Gets the <c>ProductConfigurations</c> entity set.</summary>
     public DbSet<ProductConfiguration> ProductConfigurations => Set<ProductConfiguration>();
+
+    /// <summary>Gets the <c>QuoteRecords</c> entity set.</summary>
     public DbSet<QuoteRecord>          QuoteRecords          => Set<QuoteRecord>();
+
+    /// <summary>Gets the <c>AuditLogs</c> entity set.</summary>
     public DbSet<AuditLog>             AuditLogs             => Set<AuditLog>();
 
+    /// <summary>
+    /// Applies all entity type configurations from this assembly, registers MassTransit outbox/inbox tables,
+    /// and configures a global soft-delete query filter on all <see cref="Entity"/>-derived types.
+    /// </summary>
+    /// <param name="builder">The model builder used to configure the EF Core model.</param>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
@@ -34,6 +48,11 @@ public class PricingDbContext(DbContextOptions<PricingDbContext> options) : DbCo
         }
     }
 
+    /// <summary>
+    /// Clears pending domain events from all tracked entities before delegating to EF Core's save mechanism.
+    /// </summary>
+    /// <param name="ct">Token used to cancel the operation.</param>
+    /// <returns>The number of state entries written to the database.</returns>
     public override async Task<int> SaveChangesAsync(CancellationToken ct = default)
     {
         foreach (var entity in ChangeTracker.Entries<IEntity>().Select(e => e.Entity))

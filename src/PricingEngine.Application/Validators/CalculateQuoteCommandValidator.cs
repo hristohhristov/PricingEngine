@@ -5,8 +5,14 @@ using ProductModelConstants = PricingEngine.Domain.Products.Models.ModelConstant
 
 namespace PricingEngine.Application.Validators;
 
+/// <summary>
+/// FluentValidation validator for <see cref="CalculateQuoteCommand"/>.
+/// Enforces that the product code is non-empty and within the allowed length range,
+/// and that the payload is a valid JSON object.
+/// </summary>
 public class CalculateQuoteCommandValidator : AbstractValidator<CalculateQuoteCommand>
 {
+    /// <summary>Configures the validation rules for <see cref="CalculateQuoteCommand"/>.</summary>
     public CalculateQuoteCommandValidator()
     {
         RuleFor(x => x.ProductCode)

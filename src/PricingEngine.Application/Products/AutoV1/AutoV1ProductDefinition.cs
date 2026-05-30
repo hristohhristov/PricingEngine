@@ -5,23 +5,15 @@ using PricingEngine.Domain.Pricing.Models;
 namespace PricingEngine.Application.Products.AutoV1;
 
 /// <summary>
-/// Automobile insurance v1.
-///
-/// netPremium = vehicleValue × BaseRate × AgeTierMultiplier × CoverageMultiplier
-///            + ComprehensiveRiderFee (if rider requested)
-/// fee        = AdminFee (flat)
-/// Tax (10%) applied automatically by BasePricingStrategy.
-///
-/// Payload:
-///   vehicleValue        decimal  — market value of the insured vehicle
-///   driverAge           int      — age of primary driver in years
-///   coverageType        string   — "Third Party" | "Third Party Fire" | "Comprehensive"
-///   comprehensiveRider  bool?    — optional extended glass/windshield cover add-on
+/// Pricing strategy and product definition for <c>AUTO_V1</c> (automobile insurance, version 1).
+/// Net premium = vehicleValue × BaseRate × AgeTierMultiplier × CoverageMultiplier [+ ComprehensiveRiderFee]; fee = AdminFee (flat).
 /// </summary>
 public sealed class AutoV1ProductDefinition : ProductDefinitionBase<AutoV1ProductDefinition.Config>
 {
+    /// <inheritdoc/>
     public override string SupportedProductCode => "AUTO_V1";
 
+    /// <inheritdoc/>
     protected override Config DefaultConfig => new(
         BaseRate: 0.03m,
         AdminFee: 40.00m,
@@ -41,6 +33,19 @@ public sealed class AutoV1ProductDefinition : ProductDefinitionBase<AutoV1Produc
         }
     );
 
+    /// <summary>
+    /// Calculates the net premium and admin fee for an automobile insurance quote.
+    /// Applies driver-age and coverage-type multipliers and optionally adds a comprehensive rider fee.
+    /// </summary>
+    /// <param name="parameters">
+    /// JSON payload; must contain <c>vehicleValue</c> (decimal), <c>driverAge</c> (int),
+    /// <c>coverageType</c> (string), and optionally <c>comprehensiveRider</c> (bool).
+    /// </param>
+    /// <param name="config">The active product configuration with tariff tables.</param>
+    /// <returns>A tuple of net premium and admin fee <see cref="Money"/> values.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when <c>driverAge</c> falls outside all configured age tiers, or <c>coverageType</c> is not recognised.
+    /// </exception>
     protected override (Money netPremium, Money fee) Calculate(
         JsonElement parameters, Config config)
     {
@@ -67,6 +72,12 @@ public sealed class AutoV1ProductDefinition : ProductDefinitionBase<AutoV1Produc
         return (premium, new Money(config.AdminFee));
     }
 
+    /// <summary>Strongly-typed configuration record for <c>AUTO_V1</c>.</summary>
+    /// <param name="BaseRate">Percentage of vehicle value used as the base premium rate.</param>
+    /// <param name="AdminFee">Flat administration fee added to every quote.</param>
+    /// <param name="ComprehensiveRiderFee">Additional fee charged when the optional comprehensive rider is selected.</param>
+    /// <param name="AgeTiers">Ordered list of age-bracket multipliers applied to the base premium.</param>
+    /// <param name="CoverageMultipliers">Map from coverage type name to its premium multiplier.</param>
     public sealed record Config(
         decimal BaseRate,
         decimal AdminFee,
@@ -74,5 +85,9 @@ public sealed class AutoV1ProductDefinition : ProductDefinitionBase<AutoV1Produc
         List<AgeTier> AgeTiers,
         Dictionary<string, decimal> CoverageMultipliers);
 
+    /// <summary>Defines a driver age bracket and the multiplier applied to the base premium.</summary>
+    /// <param name="MinAge">Minimum driver age (inclusive) for this tier.</param>
+    /// <param name="MaxAge">Maximum driver age (inclusive) for this tier.</param>
+    /// <param name="Multiplier">Factor applied to the base rate for drivers in this age range.</param>
     public sealed record AgeTier(int MinAge, int MaxAge, decimal Multiplier);
 }

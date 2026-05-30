@@ -6,4 +6,9 @@
     <Project Path="src/PricingEngine.Infrastructure/PricingEngine.Infrastructure.csproj" />
     <Project Path="src/PricingEngine.Web/PricingEngine.Web.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PricingEngine.Tests.Unit/PricingEngine.Tests.Unit.csproj" />
+    <Project Path="tests/PricingEngine.Tests.Architecture/PricingEngine.Tests.Architecture.csproj" />
+    <Project Path="tests/PricingEngine.Tests.Integration/PricingEngine.Tests.Integration.csproj" />
+  </Folder>
 </Solution>

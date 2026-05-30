@@ -9,8 +9,17 @@ using PricingEngine.Domain.Pricing.Interfaces;
 
 namespace PricingEngine.Application;
 
+/// <summary>
+/// Extension methods that register Application-layer services with the DI container.
+/// Configures MediatR, FluentValidation, pricing strategies, and the installment calculator.
+/// </summary>
 public static class ApplicationConfiguration
 {
+    /// <summary>
+    /// Adds all Application services to the service collection.
+    /// </summary>
+    /// <param name="services">The application's service collection.</param>
+    /// <returns>The same <paramref name="services"/> instance for chaining.</returns>
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services

@@ -13,8 +13,18 @@ using PricingEngine.Infrastructure.Seeding;
 
 namespace PricingEngine.Infrastructure;
 
+/// <summary>
+/// Extension methods that register Infrastructure-layer services with the DI container.
+/// Configures EF Core, repository scanning, MassTransit with RabbitMQ, and the product configuration seeder.
+/// </summary>
 public static class InfrastructureConfiguration
 {
+    /// <summary>
+    /// Adds all Infrastructure services (database, repositories, message bus, unit of work, seeder) to the service collection.
+    /// </summary>
+    /// <param name="services">The application's service collection.</param>
+    /// <param name="configuration">The application configuration used to resolve connection strings and RabbitMQ options.</param>
+    /// <returns>The same <paramref name="services"/> instance for chaining.</returns>
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services, IConfiguration configuration)
     {

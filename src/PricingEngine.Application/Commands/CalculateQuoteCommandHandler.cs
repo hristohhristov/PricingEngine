@@ -12,6 +12,10 @@ using PricingEngine.Domain.Quotes.Repositories;
 
 namespace PricingEngine.Application.Commands;
 
+/// <summary>
+/// Handles <see cref="CalculateQuoteCommand"/> by orchestrating product config lookup, strategy-based pricing,
+/// quote persistence, integration-event publishing, and unit-of-work commit.
+/// </summary>
 public class CalculateQuoteCommandHandler(
     IProductConfigurationDomainRepository productConfigRepo,
     IQuoteRecordDomainRepository quoteRepo,
@@ -23,6 +27,15 @@ public class CalculateQuoteCommandHandler(
     ILogger<CalculateQuoteCommandHandler> logger)
     : IRequestHandler<CalculateQuoteCommand, QuoteSummaryResponse>
 {
+    /// <summary>
+    /// Executes the quote calculation workflow and returns the full quote summary with installment options.
+    /// </summary>
+    /// <param name="request">The command containing the product code and JSON payload.</param>
+    /// <param name="ct">Token used to cancel the operation.</param>
+    /// <returns>A <see cref="QuoteSummaryResponse"/> containing the breakdown and installment plans.</returns>
+    /// <exception cref="ProductConfigurationNotFoundException">
+    /// Thrown when no active configuration exists for the requested product code.
+    /// </exception>
     public async Task<QuoteSummaryResponse> Handle(
         CalculateQuoteCommand request, CancellationToken ct)
     {

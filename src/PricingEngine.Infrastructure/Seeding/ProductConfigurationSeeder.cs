@@ -6,6 +6,10 @@ using PricingEngine.Infrastructure.Persistence;
 
 namespace PricingEngine.Infrastructure.Seeding;
 
+/// <summary>
+/// Seeds a default <c>ProductConfiguration</c> row for each registered <see cref="IProductDefinition"/>
+/// that does not yet have one in the database.
+/// </summary>
 public sealed class ProductConfigurationSeeder(
     IEnumerable<IProductDefinition> definitions,
     IProductConfigurationFactory factory,
@@ -13,6 +17,12 @@ public sealed class ProductConfigurationSeeder(
     ILogger<ProductConfigurationSeeder> logger)
     : IProductConfigurationSeeder
 {
+    /// <summary>
+    /// Iterates over all product definitions and inserts a configuration row for any that are missing.
+    /// Existing configurations (including soft-deleted ones) are skipped.
+    /// </summary>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when all seed operations have finished.</returns>
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
         foreach (var definition in definitions)

@@ -4,9 +4,17 @@ using PricingEngine.Domain.Products.Models;
 
 namespace PricingEngine.Infrastructure.Persistence.Configurations;
 
+/// <summary>
+/// EF Core fluent configuration for the <see cref="ProductConfiguration"/> aggregate root.
+/// Maps to the <c>ProductConfigurations</c> table and applies column constraints, soft-delete defaults, and indexes.
+/// </summary>
 public class ProductConfigurationEntityConfiguration
     : IEntityTypeConfiguration<ProductConfiguration>
 {
+    /// <summary>
+    /// Applies the entity type mapping configuration for <see cref="ProductConfiguration"/>.
+    /// </summary>
+    /// <param name="builder">The builder used to configure the entity type.</param>
     public void Configure(EntityTypeBuilder<ProductConfiguration> builder)
     {
         builder.ToTable("ProductConfigurations");

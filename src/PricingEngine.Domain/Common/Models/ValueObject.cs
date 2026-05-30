@@ -2,11 +2,21 @@ using System.Reflection;
 
 namespace PricingEngine.Domain.Common.Models;
 
+/// <summary>
+/// Abstract base class for DDD value objects.
+/// Equality is determined by structural field comparison via reflection.
+/// </summary>
 public abstract class ValueObject
 {
     private static readonly BindingFlags FieldFlags =
         BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 
+    /// <summary>
+    /// Determines whether the specified object is structurally equal to this value object.
+    /// Two instances are equal when they have the same type and all instance fields are equal.
+    /// </summary>
+    /// <param name="other">The object to compare with this instance.</param>
+    /// <returns><c>true</c> when structurally equal; otherwise <c>false</c>.</returns>
     public override bool Equals(object? other)
     {
         if (other is null) return false;
@@ -22,6 +32,10 @@ public abstract class ValueObject
         return true;
     }
 
+    /// <summary>
+    /// Returns a hash code computed from all instance fields across the entire class hierarchy.
+    /// </summary>
+    /// <returns>A composite hash code based on all field values.</returns>
     public override int GetHashCode()
     {
         const int start = 17, multiplier = 59;
@@ -43,6 +57,15 @@ public abstract class ValueObject
         return fields;
     }
 
+    /// <summary>Returns <c>true</c> when both value objects are structurally equal.</summary>
+    /// <param name="a">Left operand.</param>
+    /// <param name="b">Right operand.</param>
+    /// <returns><c>true</c> when equal; otherwise <c>false</c>.</returns>
     public static bool operator ==(ValueObject a, ValueObject b) => a.Equals(b);
+
+    /// <summary>Returns <c>true</c> when the two value objects are not structurally equal.</summary>
+    /// <param name="a">Left operand.</param>
+    /// <param name="b">Right operand.</param>
+    /// <returns><c>true</c> when not equal; otherwise <c>false</c>.</returns>
     public static bool operator !=(ValueObject a, ValueObject b) => !a.Equals(b);
 }

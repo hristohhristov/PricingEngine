@@ -2,12 +2,25 @@ using FluentValidation;
 using MediatR;
 
 namespace PricingEngine.Application.Behaviors;
-
+/// <summary>
+/// MediatR pipeline behavior that performs validation on incoming requests using FluentValidation validators.
+/// </summary>
+/// <typeparam name="TRequest"></typeparam>
+/// <typeparam name="TResponse"></typeparam>
+/// <param name="validators"></param>
 public class ValidationBehavior<TRequest, TResponse>(
     IEnumerable<IValidator<TRequest>> validators)
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
+    /// <summary>
+    /// Handles the validation of the incoming request. If any validation failures are found, a ValidationException is thrown containing the details of the failures.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="next"></param>
+    /// <param name="ct"></param>
+    /// <returns></returns>
+    /// <exception cref="ValidationException"></exception>
     public async Task<TResponse> Handle(
         TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken ct)
     {

@@ -3,6 +3,10 @@ using PricingEngine.Domain.Products.Models;
 
 namespace PricingEngine.Domain.Products.Factories;
 
+/// <summary>
+/// Concrete fluent factory for constructing <see cref="ProductConfiguration"/> aggregate roots.
+/// Tracks which required fields have been set and throws if any are missing when <see cref="Build"/> is called.
+/// </summary>
 public class ProductConfigurationFactory : IProductConfigurationFactory
 {
     private string   _productCode   = default!;
@@ -15,6 +19,7 @@ public class ProductConfigurationFactory : IProductConfigurationFactory
     private bool _validFromSet   = false;
     private bool _validToSet     = false;
 
+    /// <inheritdoc/>
     public IProductConfigurationFactory WithProductCode(string productCode)
     {
         _productCode    = productCode;
@@ -22,6 +27,7 @@ public class ProductConfigurationFactory : IProductConfigurationFactory
         return this;
     }
 
+    /// <inheritdoc/>
     public IProductConfigurationFactory WithConfigData(string configData)
     {
         _configData    = configData;
@@ -29,6 +35,7 @@ public class ProductConfigurationFactory : IProductConfigurationFactory
         return this;
     }
 
+    /// <inheritdoc/>
     public IProductConfigurationFactory WithValidFrom(DateTime validFrom)
     {
         _validFrom    = validFrom;
@@ -36,6 +43,7 @@ public class ProductConfigurationFactory : IProductConfigurationFactory
         return this;
     }
 
+    /// <inheritdoc/>
     public IProductConfigurationFactory WithValidTo(DateTime validTo)
     {
         _validTo    = validTo;
@@ -43,6 +51,13 @@ public class ProductConfigurationFactory : IProductConfigurationFactory
         return this;
     }
 
+    /// <summary>
+    /// Validates all accumulated state and creates a new <see cref="ProductConfiguration"/> instance.
+    /// </summary>
+    /// <returns>A fully initialised <see cref="ProductConfiguration"/> aggregate root.</returns>
+    /// <exception cref="InvalidProductConfigurationException">
+    /// Thrown when any of <c>ProductCode</c>, <c>ConfigData</c>, <c>ValidFrom</c>, or <c>ValidTo</c> have not been set.
+    /// </exception>
     public ProductConfiguration Build()
     {
         if (!_productCodeSet || !_configDataSet || !_validFromSet || !_validToSet)
